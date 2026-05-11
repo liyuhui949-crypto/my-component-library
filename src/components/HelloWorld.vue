@@ -1,10 +1,24 @@
+<!--
+ * @Author: 李玉辉 liyuhui949@gmail.com
+ * @Date: 2026-05-09 17:00:35
+ * @LastEditors: 李玉辉 liyuhui949@gmail.com
+ * @LastEditTime: 2026-05-11 15:36:01
+ * @FilePath: \my-component-library\src\components\HelloWorld.vue
+ * @Description: 添加跳转到首页后返回当前组件，数据被缓存的示例
+-->
 <script setup lang="ts">
-import { ref } from 'vue'
-import viteLogo from '../assets/vite.svg'
-import heroImg from '../assets/hero.png'
-import vueLogo from '../assets/vue.svg'
+import { ref } from "vue";
+import viteLogo from "../assets/vite.svg";
+import heroImg from "../assets/hero.png";
+import vueLogo from "../assets/vue.svg";
+import { autoRegisterCache } from "@/hooks/useCacheManager";
+import router from "@/router";
 
-const count = ref(0)
+const count = ref(0);
+
+// 一行代码完成缓存注册
+// 手动传入name则必须和改文件名称保持一致，否则和vue setup 语法糖自动生成的name不一致会导致缓存失效；可以手动配置 definedOptions({name:"xxxx"}) 实现自定义name，或不传入参数，让代码自动根据文件名称获取name
+autoRegisterCache();
 </script>
 
 <template>
@@ -24,6 +38,8 @@ const count = ref(0)
   </section>
 
   <div class="ticks"></div>
+
+  <div @click="() => router.push({ name: 'home' })">到首页</div>
 
   <section id="next-steps">
     <div id="docs">
@@ -93,3 +109,7 @@ const count = ref(0)
   <div class="ticks"></div>
   <section id="spacer"></section>
 </template>
+
+<style lang="scss" scoped>
+@import url("@/style.css");
+</style>
