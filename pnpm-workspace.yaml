@@ -1,0 +1,4 @@
+packages:
+  - 'packages/*'       # 组件库核心包
+  - 'playground'       # 调试环境
+  - 'docs'             # 文档站点
