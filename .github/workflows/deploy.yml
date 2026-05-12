@@ -27,7 +27,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9 # 使用 pnpm 9.x 版本
+          version: 10.33.0 # 明确指定为与 package.json 一致的版本
 
       - name: Setup Node
         uses: actions/setup-node@v4
