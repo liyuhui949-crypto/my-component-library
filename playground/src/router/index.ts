@@ -18,9 +18,9 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/demo",
-      name: 'demo',
-      component: () => import("@/components/HelloWorld.vue"),
+      path: "/element-plus",
+      name: 'element-plus',
+      component: () => import("@/views/elementPlus/SearchFrom.vue"),
     },
   ],
 });
