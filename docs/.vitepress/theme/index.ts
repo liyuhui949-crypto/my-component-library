@@ -6,7 +6,6 @@ import { ElementPlusContainer } from "@vitepress-demo-preview/component";
 import "@vitepress-demo-preview/component/dist/style.css";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
-import MyComponentLib from "@my-lib/components";
 
 export default {
   extends: DefaultTheme,
@@ -15,6 +14,5 @@ export default {
     // 注册预览容器
     app.component("demo-preview", ElementPlusContainer);
     app.use(ElementPlus);
-    app.use(MyComponentLib);
   },
 };

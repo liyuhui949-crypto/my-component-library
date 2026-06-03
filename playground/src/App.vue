@@ -1,8 +1,8 @@
 <!--
  * @Author: 李玉辉 liyuhui949@gmail.com
  * @Date: 2026-05-09 17:18:00
- * @LastEditors: 李玉辉 liyuhui949@gmail.com
- * @LastEditTime: 2026-05-11 15:32:42
+ * @LastEditors: 李玉辉
+ * @LastEditTime: 2026-06-02 11:24:44
  * @FilePath: \my-component-library\src\App.vue
  * @Description: 添加缓存组件的配置
 -->
@@ -24,7 +24,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- 根据浏览器报错信息调整为这种格式 -->
+  <!-- 缓存组件功能：根据浏览器报错信息调整为这种格式 -->
   <router-view v-slot="{ Component }">
     <keep-alive :include="includeList">
       <component :is="Component" />

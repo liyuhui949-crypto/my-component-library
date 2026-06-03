@@ -5,12 +5,6 @@ title: ElSearchForm
 <script setup>
 import { data } from './api.data'
 import { ElSearchForm } from "@my-lib/components";
-import { ElInput } from "element-plus";
-
-const items = [
-  { label: "姓名", field: "name", defaultValue: "", component: ElInput },
-  { label: "电话", field: "phone", defaultValue: "", component: ElInput },
-];
 </script>
 
 # ElSearchForm 搜索表单
@@ -43,7 +37,9 @@ demo-preview=./examples/basic.vue
 
 :::
 
-:::details 组件源码
+## 组件源码
+
+:::details ElSearchForm组件
 
 ```vue
 <script setup lang="ts" generic="T extends Record<string, any>">

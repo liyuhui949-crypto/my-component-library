@@ -83,7 +83,9 @@ defineExpose({
         </el-form-item>
       </el-col>
       <el-col v-if="$slots.default" :span="colSpan ?? 6">
-        <slot></slot>
+        <el-form-item style="width: 100%">
+          <slot></slot>
+        </el-form-item>
       </el-col>
     </el-row>
   </el-form>
