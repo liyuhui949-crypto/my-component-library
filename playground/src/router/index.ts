@@ -19,8 +19,13 @@ const router = createRouter({
     },
     {
       path: "/element-plus",
-      name: 'element-plus',
+      name: "element-plus",
       component: () => import("@/views/elementPlus/SearchFrom.vue"),
+    },
+    {
+      path: "/vxeTable",
+      name: "vxeTable",
+      component: () => import("@/views/vxeTable/vxeTable.vue"),
     },
   ],
 });
