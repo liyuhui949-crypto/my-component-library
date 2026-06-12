@@ -6,4 +6,4 @@ export const ElSearchForm = withInstall(SearchForm);
 export default ElSearchForm;
 
 // 导出类型
-export type { SearchFormProps, FormItemConfig } from "./src/types";
+export type { FormItemConfig } from "./src/types";
