@@ -27,6 +27,7 @@ import { ElSearchForm } from "@my-lib/components";
 
 ## 类型定义
 
+<!-- manual:start -->
 ```ts
 export interface FormItemConfig<T = any> {
   label: string;
@@ -38,6 +39,7 @@ export interface FormItemConfig<T = any> {
   colSpan?: number;
 }
 ```
+<!-- manual:end -->
 
 ## 组件展示
 

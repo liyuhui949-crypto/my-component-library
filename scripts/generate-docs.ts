@@ -312,7 +312,26 @@ export default {
 `;
 }
 
-function genMarkdown(doc: DocData): string {
+/**
+ * 提取 index.md 中人工维护的"类型定义"区块。
+ * 优先识别 manual:start/end 标记；兼容无标记的旧文档（取 ## 类型定义 到下一个二级标题之间的内容）。
+ */
+function extractManualSection(content: string): string | null {
+  const marker = content.match(/<!--\s*manual:start\s*-->([\s\S]*?)<!--\s*manual:end\s*-->/);
+  if (marker) {
+    const inner = marker[1].trim();
+    return inner || null;
+  }
+  const headingIdx = content.search(/^##\s*类型定义\s*$/m);
+  if (headingIdx === -1) return null;
+  const afterHeading = content.indexOf("\n", headingIdx) + 1;
+  const rest = content.slice(afterHeading);
+  const nextHeading = rest.search(/^##\s/m);
+  const section = (nextHeading === -1 ? rest : rest.slice(0, nextHeading)).trim();
+  return section || null;
+}
+
+function genMarkdown(doc: DocData, manualSection: string, h1: string): string {
   return `---
 title: ${doc.name}
 ---
@@ -322,7 +341,7 @@ import { data } from './api.data'
 import { ${doc.name} } from "${PKG_NAME}";
 </script>
 
-# ${doc.name}
+# ${h1}
 
 ## Props
 
@@ -339,6 +358,12 @@ import { ${doc.name} } from "${PKG_NAME}";
   :items="data.emits"
   :cols="['name', 'description']"
 />
+
+## 类型定义
+
+<!-- manual:start -->
+${manualSection}
+<!-- manual:end -->
 
 ## 组件展示
 
@@ -376,7 +401,6 @@ import { ${doc.name} } from "${PKG_NAME}";
 
 async function main() {
   const args = process.argv.slice(2);
-  const force = args.includes("--force");
   const targets = args.filter((a) => !a.startsWith("--"));
 
   if (!fs.existsSync(COMPONENTS_DIR)) {
@@ -438,18 +462,22 @@ async function main() {
     mergeExisting(doc, readExistingApiData(apiDataFile));
     fs.writeFileSync(apiDataFile, genApiData(doc), "utf-8");
 
-    // index.md: scaffold only — never overwrite hand-edited docs unless --force
+    // index.md：每次重新生成；"类型定义"区块与一级标题保留人工内容
     const mdFile = path.join(docDir, "index.md");
-    if (!fs.existsSync(mdFile) || force) {
-      fs.writeFileSync(mdFile, genMarkdown(doc), "utf-8");
+    let manualSection = "<!-- TODO: 手动补充类型定义 -->";
+    let h1 = doc.name;
+    if (fs.existsSync(mdFile)) {
+      const old = fs.readFileSync(mdFile, "utf-8");
+      manualSection = extractManualSection(old) ?? manualSection;
+      h1 = old.match(/^# (.+)$/m)?.[1] ?? h1;
+    }
+    fs.writeFileSync(mdFile, genMarkdown(doc, manualSection, h1), "utf-8");
 
-      const exampleFile = path.join(docDir, "examples", "basic.vue");
-      if (!fs.existsSync(exampleFile)) {
-        fs.mkdirSync(path.dirname(exampleFile), { recursive: true });
-        fs.writeFileSync(exampleFile, genExampleStub(doc), "utf-8");
-      }
-    } else {
-      console.log(`ℹ  ${kebabName}/index.md exists, skipped (use --force to overwrite)`);
+    // examples/basic.vue：仅首次生成空模板，之后永不覆盖
+    const exampleFile = path.join(docDir, "examples", "basic.vue");
+    if (!fs.existsSync(exampleFile)) {
+      fs.mkdirSync(path.dirname(exampleFile), { recursive: true });
+      fs.writeFileSync(exampleFile, genExampleStub(doc), "utf-8");
     }
 
     console.log(`✓ ${exportName} → docs/components/${kebabName}/`);
