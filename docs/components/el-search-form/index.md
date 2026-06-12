@@ -27,7 +27,18 @@ import { ElSearchForm } from "@my-lib/components";
 
 ## 类型定义
 
-<<< ./types.ts
+```
+export interface FormItemConfig<T = any> {
+  label: string;
+  field: keyof T;
+  defaultValue: any;
+  component: string | Component;
+  props?: Record<string, any>;
+  rules?: FormItemRule[];
+  colSpan?: number;
+}
+
+```
 
 ## 组件展示
 
