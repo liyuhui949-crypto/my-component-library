@@ -1,33 +1,16 @@
 /*
- * @Author: 李玉辉 liyuhui949@gmail.com
+ * @Author: 李玉辉
  * @Date: 2026-05-09 17:16:15
- * @LastEditors: 李玉辉 liyuhui949@gmail.com
- * @LastEditTime: 2026-05-11 14:51:27
- * @FilePath: \my-component-library\src\router\index.ts
- * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @LastEditTime: 2026-06-15 16:56:40
+ * @LastEditors: 李玉辉
+ * @Description:
  */
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
+import { generateAutoRoutes } from "./auto-route";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomeView,
-    },
-    {
-      path: "/element-plus",
-      name: "element-plus",
-      component: () => import("@/views/elementPlus/SearchFrom.vue"),
-    },
-    {
-      path: "/vxeTable",
-      name: "vxeTable",
-      component: () => import("@/views/vxeTable/vxeTable.vue"),
-    },
-  ],
+  history: createWebHistory(),
+  routes: generateAutoRoutes(),
 });
-
+console.log("Generated Routes:", router.getRoutes());
 export default router;
