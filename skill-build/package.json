@@ -1,0 +1,23 @@
+{
+  "name": "lyh-component-lib-skill",
+  "version": "1.0.0",
+  "description": "Claude Code skill for my-component-lib — 业务组件库经验库",
+  "main": "install.js",
+  "files": [
+    "SKILL.md",
+    "references/",
+    "install.js"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "keywords": [
+    "claude-code",
+    "skill",
+    "vue",
+    "element-plus",
+    "component-library"
+  ],
+  "author": "李玉辉",
+  "license": "MIT"
+}
