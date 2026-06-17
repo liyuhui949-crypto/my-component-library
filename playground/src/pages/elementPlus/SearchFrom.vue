@@ -1,7 +1,18 @@
+<!--
+ * @Author: 李玉辉
+ * @Date: 2026-05-19 10:13:58
+ * @LastEditTime: 2026-06-16 15:17:16
+ * @LastEditors: 李玉辉
+ * @Description: 
+-->
 <script setup lang="ts">
 import { ref } from "vue";
 import { ElSearchForm } from "@my-lib/components";
 import type { FormItemConfig } from "@my-lib/components";
+import { autoRegisterCache } from "@/hooks/useCacheManager";
+
+// 启用缓存组件功能
+autoRegisterCache();
 
 const searchFormRef = ref();
 

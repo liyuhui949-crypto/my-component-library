@@ -184,15 +184,15 @@ async function loadData(): Promise<void> {
 
 /* ---------- 表格回调 ---------- */
 
-/** 达标状态、负增长率高亮 */
+/** 达标状态、负增长率高亮 — 使用设计规范语义色 */
 const cellStyle: VxeTablePropTypes.CellStyle<RowVO> = ({ row, column }) => {
   if (column.field === "zjIsFb") {
-    if (row.zjIsFb === "达标") return { color: "#67c23a", fontWeight: "bold" };
-    if (row.zjIsFb === "未达标") return { color: "#f56c6c", fontWeight: "bold" };
+    if (row.zjIsFb === "达标") return { color: "#16a34a", fontWeight: "bold" };
+    if (row.zjIsFb === "未达标") return { color: "#dc2626", fontWeight: "bold" };
   }
   if (column.field === "pjjftsRate" || column.field === "sjcbRate") {
     const value = Number(row[column.field]);
-    if (Number.isFinite(value) && value < 0) return { color: "#f56c6c" };
+    if (Number.isFinite(value) && value < 0) return { color: "#dc2626" };
   }
   return null;
 };
