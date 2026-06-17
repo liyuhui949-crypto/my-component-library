@@ -17,6 +17,8 @@ import 'vant/lib/index.css'
 import 'vuetify/styles'
 import 'vxe-pc-ui/lib/style.css'
 import 'vxe-table/lib/style.css'
+import './style.css'
+import './vxe-theme.css'
 
 const vuetify = createVuetify({
   components,

@@ -1,0 +1,319 @@
+/*
+ * VXE Table 主题覆盖 — 文档类网站风格
+ * 设计规范：黑白灰主色 + #2563EB 蓝色高亮，边框代替阴影，4px 网格间距
+ * 基于 vxe-table@4.18 + vxe-pc-ui@4.14
+ *
+ * 策略：优先覆盖 CSS 自定义属性（变量），一次性替换所有高亮色；
+ *       仅在变量不足时用类选择器补充。
+ */
+
+/* ============================================
+   CSS 变量覆盖 — 全局高亮色统一为黑色
+   ============================================ */
+
+.vxe-table,
+.vxe-grid,
+.vxe-pager {
+  /* 主色 → 黑色 */
+  --vxe-ui-font-primary-color: #171717;
+  --vxe-primary-color: #171717;
+  --vxe-ui-table-primary-color: #171717;
+
+  /* 主色浅色（hover 背景等） */
+  --vxe-primary-light-color: #f5f5f5;
+  --vxe-ui-table-primary-light-color: #f5f5f5;
+
+  /* 字体 */
+  --vxe-ui-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  --vxe-ui-font-size: 13px;
+  --vxe-ui-font-color: #171717;
+
+  /* 边框 */
+  --vxe-ui-table-border-color: #e5e5e5;
+
+  /* 表头 */
+  --vxe-ui-table-header-background-color: #fafafa;
+  --vxe-ui-table-header-font-color: #171717;
+
+  /* 表体 */
+  --vxe-ui-table-body-background-color: #ffffff;
+  --vxe-ui-table-row-hover-background-color: #f5f5f5;
+  --vxe-ui-table-row-stripe-background-color: #f5f5f5;
+
+  /* 表尾 */
+  --vxe-ui-table-footer-background-color: #fafafa;
+  --vxe-ui-table-footer-font-color: #171717;
+
+  /* 圆角 */
+  --vxe-ui-border-radius: 8px;
+
+  /* 滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
+}
+
+/* ============================================
+   表格容器
+   ============================================ */
+
+.vxe-table {
+  font-size: 13px;
+  color: #171717;
+  border-color: #e5e5e5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ============================================
+   表头
+   ============================================ */
+
+.vxe-table--header-wrapper,
+.vxe-header--column {
+  background-color: #fafafa !important;
+  background-image: none !important;
+}
+
+.vxe-header--column {
+  color: #171717;
+  font-weight: 500;
+  border-color: #e5e5e5;
+}
+
+/* 多级表头分组行 */
+.vxe-header--row .vxe-header--column {
+  background-color: #fafafa !important;
+}
+
+/* ============================================
+   表体
+   ============================================ */
+
+.vxe-body--column {
+  border-color: #e5e5e5;
+  background-color: #ffffff;
+}
+
+/* 斑马纹 */
+.vxe-body--row.row--stripe .vxe-body--column {
+  background-color: #f5f5f5 !important;
+}
+
+/* 悬停行 */
+.vxe-body--row.row--hover .vxe-body--column,
+.vxe-body--row:hover .vxe-body--column {
+  background-color: #f5f5f5 !important;
+}
+
+/* 单元格内容 */
+.vxe-cell {
+  padding: 6px 10px;
+}
+
+/* ============================================
+   表尾
+   ============================================ */
+
+.vxe-table--footer-wrapper,
+.vxe-footer--column {
+  background-color: #fafafa !important;
+  background-image: none !important;
+  color: #171717;
+  font-weight: 500;
+  border-color: #e5e5e5;
+}
+
+/* ============================================
+   排序图标
+   ============================================ */
+
+.vxe-sort--asc-btn,
+.vxe-sort--desc-btn {
+  color: #a3a3a3;
+}
+
+.vxe-sort--asc-btn.sort--active,
+.vxe-sort--desc-btn.sort--active {
+  color: #171717;
+}
+
+/* ============================================
+   边框线
+   ============================================ */
+
+.vxe-table--border-line,
+.vxe-table--border-outer {
+  border-color: #e5e5e5;
+}
+
+/* ============================================
+   复选框 / 单选框
+   ============================================ */
+
+.vxe-checkbox--icon {
+  border-color: #d4d4d4;
+  border-radius: 4px;
+}
+
+.vxe-checkbox--checked-icon {
+  background-color: #171717;
+  border-color: #171717;
+}
+
+.vxe-radio--icon {
+  border-color: #d4d4d4;
+}
+
+.vxe-radio--checked-icon {
+  background-color: #171717;
+  border-color: #171717;
+}
+
+/* ============================================
+   Loading 遮罩
+   ============================================ */
+
+.vxe-table--loading-wrapper,
+.vxe-table--loading {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.vxe-loading--spinner,
+.vxe-loading--icon,
+.vxe-loading--circular circle,
+.vxe-loading--circular circle path {
+  color: #171717 !important;
+  stroke: #171717 !important;
+}
+
+/* ============================================
+   滚动条 — 纤细风格
+   ============================================ */
+
+/* 通用滚动容器 */
+.vxe-table--main-wrapper,
+.vxe-table--header-wrapper,
+.vxe-table--body-wrapper,
+.vxe-table--footer-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d4 transparent;
+}
+
+/* WebKit 内核 (Chrome / Edge / Safari) */
+.vxe-table--main-wrapper::-webkit-scrollbar,
+.vxe-table--header-wrapper::-webkit-scrollbar,
+.vxe-table--body-wrapper::-webkit-scrollbar,
+.vxe-table--footer-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.vxe-table--main-wrapper::-webkit-scrollbar-track,
+.vxe-table--header-wrapper::-webkit-scrollbar-track,
+.vxe-table--body-wrapper::-webkit-scrollbar-track,
+.vxe-table--footer-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.vxe-table--main-wrapper::-webkit-scrollbar-thumb,
+.vxe-table--header-wrapper::-webkit-scrollbar-thumb,
+.vxe-table--body-wrapper::-webkit-scrollbar-thumb,
+.vxe-table--footer-wrapper::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 3px;
+}
+
+.vxe-table--main-wrapper::-webkit-scrollbar-thumb:hover,
+.vxe-table--header-wrapper::-webkit-scrollbar-thumb:hover,
+.vxe-table--body-wrapper::-webkit-scrollbar-thumb:hover,
+.vxe-table--footer-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+.vxe-table--main-wrapper::-webkit-scrollbar-corner,
+.vxe-table--header-wrapper::-webkit-scrollbar-corner,
+.vxe-table--body-wrapper::-webkit-scrollbar-corner,
+.vxe-table--footer-wrapper::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ============================================
+   分页器
+   ============================================ */
+
+.vxe-pager {
+  background-color: #ffffff;
+  color: #525252;
+  padding: 12px 0;
+}
+
+.vxe-pager--total-text {
+  color: #737373;
+  font-size: 13px;
+}
+
+.vxe-pager--num-btn {
+  background-color: #ffffff;
+  color: #171717;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  min-width: 28px;
+  height: 28px;
+  transition: all 0.2s ease;
+}
+
+.vxe-pager--num-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d4d4d4;
+}
+
+.vxe-pager--num-btn.is--active,
+.vxe-pager--num-btn.is--active:hover {
+  background-color: #171717 !important;
+  border-color: #171717 !important;
+  color: #ffffff !important;
+}
+
+.vxe-pager--prev-btn,
+.vxe-pager--next-btn {
+  color: #171717;
+  background-color: transparent;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.vxe-pager--prev-btn:hover,
+.vxe-pager--next-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #d4d4d4;
+}
+
+.vxe-pager--jump {
+  color: #737373;
+  font-size: 13px;
+}
+
+.vxe-pager--jump-input {
+  border-color: #e5e5e5;
+  border-radius: 4px;
+  width: 44px;
+  height: 28px;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.vxe-pager--jump-input:focus {
+  border-color: #171717;
+  outline: none;
+}
+
+/* ============================================
+   空数据
+   ============================================ */
+
+.vxe-table--empty-placeholder {
+  color: #a3a3a3;
+}
