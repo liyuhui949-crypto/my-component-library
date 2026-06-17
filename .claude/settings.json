@@ -14,10 +14,18 @@
       "Bash(grep -c \"demo-preview\" docs/components/el-search-form/examples/basic.vue)",
       "Bash(npx vitepress *)",
       "Bash(cp docs/components/el-search-form/index.md /tmp/new-index.md)",
-      "Bash(cp /tmp/index.md.bak docs/components/el-search-form/index.md)"
+      "Bash(cp /tmp/index.md.bak docs/components/el-search-form/index.md)",
+      "Bash(ls -la \"$HOME/.claude/\" 2>/dev/null || echo \"Directory not found\")",
+      "Read(//c/Users/wxm/.claude/**)",
+      "WebFetch(domain:li-yuhui949-crypto.github.io)",
+      "Bash(find /c/Users/wxm/.cc-switch/skills/vue -type f -o -type d | head -200)",
+      "Read(//c/Users/wxm/.cc-switch/skills/vue/**)",
+      "Bash(ls -laR /c/Users/wxm/.cc-switch/skills/vue)",
+      "Bash(mkdir -p \"D:/my skill/references\")"
     ],
     "additionalDirectories": [
-      "\\tmp"
+      "\\tmp",
+      "D:\\my skill"
     ]
   }
 }
