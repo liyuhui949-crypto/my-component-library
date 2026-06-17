@@ -46,6 +46,32 @@ function generateComponentSidebarItems() {
 
 const componentItems = generateComponentSidebarItems();
 
+/**
+ * 扫描 docs/utils/ 下各子目录的 index.md，
+ * 从 frontmatter 中读取 title 字段，生成侧边栏子项。
+ */
+function generateUtilsSidebarItems() {
+  const utilsDir = resolve(__dirname, "../utils");
+  if (!fs.existsSync(utilsDir)) return [];
+
+  return fs
+    .readdirSync(utilsDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => {
+      const indexPath = path.join(utilsDir, entry.name, "index.md");
+      if (!fs.existsSync(indexPath)) return null;
+
+      const content = fs.readFileSync(indexPath, "utf-8");
+      const titleMatch = content.match(/^---\s*\r?\ntitle:\s*(.+?)[\r\n]/);
+      const text = titleMatch ? titleMatch[1] : entry.name;
+
+      return { text, link: `/utils/${entry.name}/` };
+    })
+    .filter(Boolean) as { text: string; link: string }[];
+}
+
+const utilsItems = generateUtilsSidebarItems();
+
 export default defineConfig({
   title: "COMPONENT-LIBRARY",
   description:
@@ -67,6 +93,7 @@ export default defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "组件", link: componentItems[0]?.link ?? "/" },
+      ...(utilsItems.length ? [{ text: "工具模块", link: utilsItems[0]?.link }] : []),
     ],
 
     sidebar: [
@@ -74,6 +101,14 @@ export default defineConfig({
         text: "组件",
         items: componentItems,
       },
+      ...(utilsItems.length
+        ? [
+            {
+              text: "工具模块",
+              items: utilsItems,
+            },
+          ]
+        : []),
     ],
 
     socialLinks: [
