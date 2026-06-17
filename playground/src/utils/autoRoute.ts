@@ -1,7 +1,7 @@
 /*
  * @Author: 李玉辉
- * @Date: 2026-06-15 16:45:14
- * @LastEditTime: 2026-06-15 17:15:00
+ * @Date: 2026-06-16 15:04:10
+ * @LastEditTime: 2026-06-16 15:04:10
  * @LastEditors: 李玉辉
  * @Description: 自动生成指定文件下的路由配置
  */
