@@ -20,25 +20,56 @@ metadata:
         ↓
 匹配已有组件模式（ElSearchForm → 配置驱动表单）
         ↓
+检查当前项目是否已有该组件
+        ├─ 有 → 直接复用
+        └─ 无 → 将组件源码复制到 src/components/ 目录下，再引入使用
+        ↓
+校验依赖组件的注册方式（见下方「依赖组件校验」）
+        ↓
 基于已有模式生成代码（复用 FormItemConfig 接口、泛型约束、暴露方法）
-        ↓
-遵循 Vue 最佳实践和 Pinia 模式确保代码质量
-        ↓
-新增组件时同步更新文档（docs/components/）
 ```
+
+**依赖组件校验（必须执行）：**
+
+在生成组件代码前，必须检查目标项目的 UI 组件库注册方式，避免动态组件字符串无法解析：
+
+1. 检查 `main.js` / `main.ts` 中是否存在 `app.use(ElementPlus)` 全局注册
+2. 若**已全局注册** → 组件源码中可省略 Element Plus 的 import，`componentMap` 映射表可精简
+3. 若**未全局注册**（按需引入或未引入）→ 组件源码中必须显式 import 所有用到的组件，并维护完整的 `componentMap` 映射表
+
+> 组件源码（见 [el-search-form](references/el-search-form.md)）默认包含完整的 `componentMap` 和显式 import，适用于任何项目，无论是否全局注册。
 
 **判断是否使用本 skill：**
 - 需求涉及**配置驱动**的表单、表格、弹窗 → 使用
 - 需求涉及 Element Plus / Vxe-Table 的**业务封装** → 使用
 - 纯 UI 样式调整、第三方库原生 API 使用 → 不使用
 
+## 核心约束（必须遵守）
+
+**凡是涉及表单类需求，必须使用配置驱动模式，禁止手写 el-form + el-form-item 模板。**
+
+判断标准：需求中出现以下任意场景，即视为表单类需求：
+- 搜索/筛选条件
+- 数据录入/编辑表单
+- 查询参数收集
+- 任何需要多个输入字段并提交的 UI
+
+实现方式：
+1. 确保 `ElSearchForm` 组件已存在于项目中（不存在则先创建）
+2. 定义 `searchItems` 配置数组，每个字段一个配置对象
+3. 通过 `<ElSearchForm :items="searchItems">` 渲染，操作按钮通过插槽传入
+4. 通过 `formRef.value.getSearchParams()` 获取参数
+
+**为什么：** 配置驱动模式确保表单行为一致（验证、重置、参数提取），减少重复代码，后续维护只需改配置而非模板。
+
 ## 偏好
 
-- TypeScript + `<script setup lang="ts">`
+- **优先匹配项目语言** — 检测项目是否使用 TypeScript（tsconfig.json、`.vue` 中 `lang="ts"`），生成对应版本的代码
+- TypeScript 项目：使用 `<script setup lang="ts">`，利用泛型约束配置项类型
+- JavaScript 项目：使用 `<script setup>`，省略类型注解，保留 JSDoc 注释说明参数类型
 - 配置项接口命名：`FormItemConfig`、`ColumnConfig` 等语义化名称
 - 组件通过 `defineExpose` 暴露方法，由父组件通过 ref 调用
-- 导入路径使用 `@my-lib/components` 别名
-- 始终保持类型安全，泛型约束配置项与数据类型
+- 导入路径使用项目已有的别名（如 `@/`、`@/components/`），不引入新的别名
 
 ## 组件索引
 
@@ -51,7 +82,6 @@ metadata:
 | 主题 | 说明 | 参考 |
 |------|------|------|
 | 通用模式 | 配置驱动设计、泛型约束、组件封装约定 | [patterns-and-conventions](references/patterns-and-conventions.md) |
-| 项目架构 | monorepo 结构、路径别名、第三方库注册 | [project-architecture](references/project-architecture.md) |
 
 ---
 

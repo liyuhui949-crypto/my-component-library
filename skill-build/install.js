@@ -5,19 +5,49 @@ const path = require('path')
 
 // ---- 路径计算 ----
 const src = __dirname
-const projectRoot = process.env.INIT_CWD || process.cwd()
+
+// 从 __dirname 向上查找 node_modules 的父目录，即项目根目录
+// __dirname = <projectRoot>/node_modules/lyh-component-lib-skill/
+function findProjectRoot(dir) {
+  // 兼容 Windows 和 Unix 路径分隔符
+  const normalized = dir.replace(/\\/g, '/')
+  const nmIndex = normalized.lastIndexOf('/node_modules/')
+  if (nmIndex !== -1) {
+    return normalized.substring(0, nmIndex)
+  }
+  // 兜底：如果找不到 node_modules，用 INIT_CWD 或 cwd
+  return process.env.INIT_CWD || process.cwd()
+}
+
+const projectRoot = findProjectRoot(__dirname)
 const skillDest = path.resolve(projectRoot, '.claude/skills/my-component-lib')
 const claudeMdPath = path.resolve(projectRoot, 'CLAUDE.md')
 const markerFile = path.join(skillDest, '.installed')
 
-// ---- 安全检查：已安装则跳过，防止重复执行 ----
-if (fs.existsSync(markerFile)) {
-  console.log('[my-component-lib-skill] Skill 已存在，跳过安装')
+// ---- 版本检测 ----
+const currentPkg = JSON.parse(fs.readFileSync(path.join(src, 'package.json'), 'utf-8'))
+const currentVersion = currentPkg.version
+
+function getInstalledVersion() {
+  if (!fs.existsSync(markerFile)) return null
+  return fs.readFileSync(markerFile, 'utf-8').trim()
+}
+
+const installedVersion = getInstalledVersion()
+
+// 已安装且版本一致 → 跳过
+if (installedVersion && installedVersion === currentVersion) {
+  console.log(`[my-component-lib-skill] Skill v${currentVersion} 已存在，跳过安装`)
   process.exit(0)
 }
 
+// 已安装但版本不同 → 更新
+if (installedVersion) {
+  console.log(`[my-component-lib-skill] 检测到版本更新: v${installedVersion} → v${currentVersion}`)
+}
+
 // ---- 跳过的文件和目录 ----
-const SKIP = new Set(['node_modules', 'package.json', 'install.js', 'package-lock.json', '.npmrc'])
+const SKIP = new Set(['node_modules', '.claude', 'package.json', 'install.js', 'package-lock.json', '.npmrc', '.installed'])
 
 function copyRecursive(srcDir, destDir) {
   if (!fs.existsSync(destDir)) {
@@ -40,33 +70,12 @@ const CLAUDE_MD_CONTENT = `# 项目约定
 
 ## 项目级 Skill（优先使用）
 
-本项目已安装项目级 Claude Code Skill，位于 \`.claude/skills/my-component-lib/\`。
+本项目已安装业务组件库 Skill，位于 \`.claude/skills/my-component-lib/\`。
 
-**规则：** 涉及组件开发、封装、改造时，优先使用项目级 skill 中的模式和方案，而非从零开始。
+**规则：** 涉及业务组件开发（搜索表单、数据表格、弹窗、详情页等）时，优先使用该 skill 中的模式和方案，而非从零开始。
 
-- 组件索引与实现模式：\`.claude/skills/my-component-lib/SKILL.md\`
-- 组件文档与 API 定义：\`docs/components/\`
-
-## 设计规范
-
-做任何 UI 相关工作前，先阅读 \`playground/DESIGN-SPEC.md\` 并严格遵守其中的配色、字体、间距等规范。
-
-## 组件经验库
-
-\`docs/components/\` 是本项目的核心经验库，每个子目录对应一个业务组件，包含：
-- \`index.md\` — 组件文档（Props、Events、类型定义、源码）
-- \`api.data.ts\` — 结构化 API 元数据
-- \`examples/\` — 可运行的示例代码
-
-**规则：** 涉及组件开发、封装、改造时，先检查 \`docs/components/\` 下是否有相关组件的文档和实现，优先复用已有的模式和方案。新增组件时，也应同步在 \`docs/components/\` 下创建文档，保持经验库与代码同步。
-
-## 项目架构
-
-本项目是 pnpm workspace monorepo，组件源码与 playground 同仓库。组件设计遵循四个原则：
-1. **配置项驱动** — 声明式配置生成复杂业务 UI，减少重复模板
-2. **业务场景导向** — 聚焦搜索表单、表格、弹窗、详情页等高频场景
-3. **TypeScript 泛型** — 配置项与数据类型自动关联，编译期发现错误
-4. **Workspace 集成** — 修改即时热更新
+- Skill 入口：\`.claude/skills/my-component-lib/SKILL.md\`
+- 包含内容：配置驱动组件模式、Vue 最佳实践、Pinia 状态管理参考
 `
 
 // ---- 执行安装 ----
@@ -74,8 +83,8 @@ try {
   // 1. 部署 skill 文件
   copyRecursive(src, skillDest)
 
-  // 2. 写入安装标记（下次 postinstall 检测到则跳过）
-  fs.writeFileSync(markerFile, new Date().toISOString(), 'utf-8')
+  // 2. 写入版本标记（下次 postinstall 检测版本决定是否更新）
+  fs.writeFileSync(markerFile, currentVersion, 'utf-8')
   console.log('[my-component-lib-skill] Skill 已部署到 ' + skillDest)
 
   // 3. 生成 CLAUDE.md（已存在则不覆盖）
