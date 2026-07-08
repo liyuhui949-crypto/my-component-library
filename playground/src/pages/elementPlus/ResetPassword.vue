@@ -2,18 +2,15 @@
  * @Author: 李玉辉 liyuhui949@gmail.com
  * @Date: 2026-07-07
  * @LastEditors: 李玉辉
- * @LastEditTime: 2026-07-07 11:24:40
+ * @LastEditTime: 2026-07-08 17:11:57
  * @FilePath: \my-component-library\playground\src\pages\elementPlus\ResetPassword.vue
  * @Description: 重置密码组件演示页面
 -->
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, any>">
 import { ref } from "vue";
 import { ElMessage } from "element-plus";
-import ResetPassword from "@/components/ResetPassword/Index.vue";
-import type {
-  VerifyType,
-  ResetFormData,
-} from "@/components/ResetPassword/Index.vue";
+import { ElResetPassword as ResetPassword } from "@my-lib/components";
+import type { VerifyType, ResetFormData } from "@my-lib/components";
 import { autoRegisterCache } from "@/hooks/useCacheManager";
 
 autoRegisterCache();
@@ -85,6 +82,19 @@ const handleComplete = () => {
   ElMessage.info("跳转到登录页");
 };
 
+/** ========== 收集信息展示 ========== */
+
+const collectedData = ref<Record<string, any>>({});
+
+/** 获取当前活跃组件的 ref */
+const activeRef = () =>
+  (verifyType.value === "email" ? emailRef : phoneRef).value;
+
+/** 调用 getFormData 获取收集到的信息 */
+const handleGetFormData = () => {
+  collectedData.value = activeRef()?.getFormData() ?? {};
+};
+
 /** 工具函数 */
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 </script>
@@ -134,6 +144,17 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         </div>
       </template>
     </ResetPassword>
+
+    <!-- 收集信息展示 -->
+    <section class="result-section">
+      <h3>收集到的信息</h3>
+      <div class="result-actions">
+        <el-button type="primary" @click="handleGetFormData"
+          >获取表单数据</el-button
+        >
+      </div>
+      <pre>{{ JSON.stringify(collectedData, null, 2) || "暂无数据" }}</pre>
+    </section>
   </div>
 </template>
 
@@ -144,7 +165,6 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
   gap: 24px;
 }
 
@@ -160,5 +180,32 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   margin-top: 24px;
   padding-top: 24px;
   border-top: 1px solid #e5e5e5;
+}
+
+.result-section {
+  width: 100%;
+  max-width: 420px;
+  text-align: left;
+
+  .result-actions {
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--text-h, #08060d);
+  }
+
+  pre {
+    background: var(--code-bg, #f4f3ec);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+    overflow-x: auto;
+    min-height: 40px;
+  }
 }
 </style>

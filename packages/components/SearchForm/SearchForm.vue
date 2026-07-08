@@ -1,3 +1,10 @@
+<!--
+ * @Author: 李玉辉
+ * @Date: 2026-05-19 09:19:49
+ * @LastEditTime: 2026-07-08 16:42:02
+ * @LastEditors: 李玉辉
+ * @Description: 搜索表单业务组件
+-->
 <script setup lang="ts" generic="T extends Record<string, any>">
 import { ref, readonly, watch } from "vue";
 import type { FormInstance, FormProps } from "element-plus";
@@ -5,6 +12,8 @@ import type { FormItemConfig } from "./types";
 
 defineOptions({
   name: "ElSearchForm",
+  // 禁用继承属性，避免将不必要的属性传递给根元素
+  inheritAttrs: false,
 });
 
 const props = defineProps<{
