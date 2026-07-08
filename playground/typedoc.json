@@ -1,0 +1,27 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/components/index.ts"],
+  "entryPointStrategy": "resolve",
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "hideGenerator": true,
+  "hideBreadcrumbs": true,
+  "hidePageHeader": false,
+  "hidePageTitle": false,
+  "publicPath": "/api/",
+  "useHTMLAnchors": true,
+  "indexFormat": "table",
+  "parametersFormat": "table",
+  "propertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "typeDeclarationFormat": "table",
+  "tableColumnSettings": {
+    "hideDefaults": false,
+    "hideInherited": false,
+    "hideModifiers": false,
+    "hideSources": true
+  }
+}
