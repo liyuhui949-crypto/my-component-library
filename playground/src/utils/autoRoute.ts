@@ -1,9 +1,9 @@
 /*
  * @Author: 李玉辉
  * @Date: 2026-06-16 15:04:10
- * @LastEditTime: 2026-06-16 15:04:10
+ * @LastEditTime: 2026-07-10 15:27:58
  * @LastEditors: 李玉辉
- * @Description: 自动生成指定文件下的路由配置
+ * @Description: 自动为指定目录下的文件生成路由配置
  */
 
 import type { Component } from "vue";
