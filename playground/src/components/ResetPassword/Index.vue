@@ -1,375 +1,331 @@
-<!--
- * @Author: 李玉辉 liyuhui949@gmail.com
- * @Date: 2026-07-07
- * @LastEditors: 李玉辉 liyuhui949@gmail.com
- * @LastEditTime: 2026-07-07
- * @FilePath: \my-component-library\playground\src\components\ResetPassword\Index.vue
- * @Description: 重置密码组件 - 纯前端验证与信息收集
--->
-<script setup lang="ts">
-import { ref, computed, reactive, onUnmounted, watch } from 'vue'
-
-/** 验证方式 */
-export type VerifyType = 'email' | 'phone'
-
-/** 步骤类型 */
-export type StepType = 'account' | 'code' | 'password' | 'success'
-
-/** 收集到的表单数据 */
-export interface ResetFormData {
-  email?: string
-  phone?: string
-  code: string
-  password: string
-}
-
-/** Props 定义 */
-export interface ResetPasswordProps {
-  /** 验证方式 */
-  verifyType?: VerifyType
-  /** 标题 */
-  title?: string
-  /** 账号输入框占位符 */
-  accountPlaceholder?: string
-  /** 验证码输入框占位符 */
-  codePlaceholder?: string
-  /** 密码输入框占位符 */
-  passwordPlaceholder?: string
-  /** 确认密码输入框占位符 */
-  confirmPlaceholder?: string
-  /** 发送验证码按钮文字 */
-  sendCodeText?: string
-  /** 重发验证码按钮文字 */
-  resendText?: string
-  /** 下一步按钮文字 */
-  nextText?: string
-  /** 重置按钮文字 */
-  resetText?: string
-  /** 返回按钮文字 */
-  backText?: string
-  /** 完成按钮文字 */
-  completeText?: string
-  /** 成功提示标题 */
-  successTitle?: string
-  /** 成功提示描述 */
-  successDesc?: string
-  /** 验证码长度 */
-  codeLength?: number
-  /** 密码最小长度 */
-  minPasswordLength?: number
-  /** 倒计时时长（秒） */
-  countdownDuration?: number
-  /** 手机号区号 */
-  phoneArea?: string
-}
+<script setup lang="ts" generic="T extends Record<string, any>">
+import { ref, computed, reactive, onUnmounted, watch } from "vue";
+import type {
+  VerifyType,
+  StepType,
+  ResetFormData,
+  ResetPasswordProps,
+} from "./types";
 
 const props = withDefaults(defineProps<ResetPasswordProps>(), {
-  verifyType: 'email',
-  title: '重置密码',
-  accountPlaceholder: '',
-  codePlaceholder: '请输入验证码',
-  passwordPlaceholder: '请输入新密码',
-  confirmPlaceholder: '请再次输入密码',
-  sendCodeText: '获取验证码',
-  resendText: '重新获取',
-  nextText: '下一步',
-  resetText: '重置密码',
-  backText: '返回',
-  completeText: '完成',
-  successTitle: '密码重置成功',
-  successDesc: '您的密码已成功重置，现在可以使用新密码登录',
+  verifyType: "email",
+  title: "重置密码",
+  accountPlaceholder: "",
+  codePlaceholder: "请输入验证码",
+  passwordPlaceholder: "请输入新密码",
+  confirmPlaceholder: "请再次输入密码",
+  sendCodeText: "获取验证码",
+  resendText: "重新获取",
+  nextText: "下一步",
+  resetText: "重置密码",
+  backText: "返回",
+  completeText: "完成",
+  successTitle: "密码重置成功",
+  successDesc: "您的密码已成功重置，现在可以使用新密码登录",
   codeLength: 6,
   minPasswordLength: 8,
   countdownDuration: 60,
-  phoneArea: '+86'
-})
+  phoneArea: "+86",
+});
 
 /** Emits 定义 */
 const emit = defineEmits<{
   /** 步骤变化 */
-  stepChange: [step: StepType]
+  stepChange: [step: StepType];
   /** 点击发送验证码（账号验证通过后触发） */
-  sendCode: [account: string]
+  sendCode: [account: string];
   /** 点击验证验证码（验证码格式验证通过后触发） */
-  verifyCode: [account: string, code: string]
+  verifyCode: [account: string, code: string];
   /** 点击重置密码（密码验证通过后触发） */
-  submit: [data: ResetFormData]
+  submit: [data: ResetFormData];
   /** 完成 */
-  complete: []
-}>()
+  complete: [];
+}>();
 
 /** 当前步骤 */
-const currentStep = ref<StepType>('account')
+const currentStep = ref<StepType>("account");
 
 /** 加载状态 */
-const loading = ref(false)
+const loading = ref(false);
 
 /** 倒计时 */
-const countdown = ref(0)
-let timer: ReturnType<typeof setInterval> | null = null
+const countdown = ref(0);
+let timer: ReturnType<typeof setInterval> | null = null;
 
 /** 表单数据 */
 const formData = reactive({
-  account: '',
-  code: '',
-  password: '',
-  confirmPassword: ''
-})
+  account: "",
+  code: "",
+  password: "",
+  confirmPassword: "",
+});
 
 /** 计算占位符 */
 const computedAccountPlaceholder = computed(() => {
-  if (props.accountPlaceholder) return props.accountPlaceholder
-  return props.verifyType === 'email' ? '请输入邮箱地址' : '请输入手机号'
-})
+  if (props.accountPlaceholder) return props.accountPlaceholder;
+  return props.verifyType === "email" ? "请输入邮箱地址" : "请输入手机号";
+});
 
 /** 密码强度 */
 const passwordStrength = computed(() => {
-  const pwd = formData.password
-  if (!pwd) return 0
+  const pwd = formData.password;
+  if (!pwd) return 0;
 
-  let score = 0
-  if (pwd.length >= props.minPasswordLength) score++
-  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++
-  if (/\d/.test(pwd)) score++
-  if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++
+  let score = 0;
+  if (pwd.length >= props.minPasswordLength) score++;
+  if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) score++;
+  if (/\d/.test(pwd)) score++;
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(pwd)) score++;
 
-  return score
-})
+  return score;
+});
 
 /** 密码强度文本 */
 const strengthText = computed(() => {
-  const texts = ['', '弱', '中', '强', '非常强']
-  return texts[passwordStrength.value]
-})
+  const texts = ["", "弱", "中", "强", "非常强"];
+  return texts[passwordStrength.value];
+});
 
 /** 当前步骤索引 */
 const stepIndex = computed(() => {
-  const steps: StepType[] = ['account', 'code', 'password', 'success']
-  return steps.indexOf(currentStep.value)
-})
+  const steps: StepType[] = ["account", "code", "password", "success"];
+  return steps.indexOf(currentStep.value);
+});
 
 /** 邮箱验证 */
 const validateEmail = (value: string): boolean => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-}
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+};
 
 /** 手机号验证 */
 const validatePhone = (value: string): boolean => {
-  return /^1[3-9]\d{9}$/.test(value)
-}
+  return /^1[3-9]\d{9}$/.test(value);
+};
 
 /** 账号验证规则 */
 const accountRules = computed(() => ({
   account: [
-    { required: true, message: computedAccountPlaceholder.value, trigger: 'blur' },
+    {
+      required: true,
+      message: computedAccountPlaceholder.value,
+      trigger: "blur",
+    },
     {
       validator: (_rule: any, value: string, callback: Function) => {
         if (!value) {
-          callback(new Error(computedAccountPlaceholder.value))
-        } else if (props.verifyType === 'email' && !validateEmail(value)) {
-          callback(new Error('请输入正确的邮箱地址'))
-        } else if (props.verifyType === 'phone' && !validatePhone(value)) {
-          callback(new Error('请输入正确的手机号'))
+          callback(new Error(computedAccountPlaceholder.value));
+        } else if (props.verifyType === "email" && !validateEmail(value)) {
+          callback(new Error("请输入正确的邮箱地址"));
+        } else if (props.verifyType === "phone" && !validatePhone(value)) {
+          callback(new Error("请输入正确的手机号"));
         } else {
-          callback()
+          callback();
         }
       },
-      trigger: 'blur'
-    }
-  ]
-}))
+      trigger: "blur",
+    },
+  ],
+}));
 
 /** 验证码验证规则 */
 const codeRules = computed(() => ({
   code: [
-    { required: true, message: '请输入验证码', trigger: 'blur' },
-    { len: props.codeLength, message: `验证码为${props.codeLength}位`, trigger: 'blur' }
-  ]
-}))
+    { required: true, message: "请输入验证码", trigger: "blur" },
+    {
+      len: props.codeLength,
+      message: `验证码为${props.codeLength}位`,
+      trigger: "blur",
+    },
+  ],
+}));
 
 /** 密码验证规则 */
 const passwordRules = computed(() => ({
   password: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: props.minPasswordLength, message: `密码长度至少${props.minPasswordLength}位`, trigger: 'blur' }
+    { required: true, message: "请输入新密码", trigger: "blur" },
+    {
+      min: props.minPasswordLength,
+      message: `密码长度至少${props.minPasswordLength}位`,
+      trigger: "blur",
+    },
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: "请确认密码", trigger: "blur" },
     {
       validator: (_rule: any, value: string, callback: Function) => {
         if (value !== formData.password) {
-          callback(new Error('两次输入的密码不一致'))
+          callback(new Error("两次输入的密码不一致"));
         } else {
-          callback()
+          callback();
         }
       },
-      trigger: 'blur'
-    }
-  ]
-}))
+      trigger: "blur",
+    },
+  ],
+}));
 
 /** 表单引用 */
-const accountFormRef = ref()
-const codeFormRef = ref()
-const passwordFormRef = ref()
+const accountFormRef = ref();
+const codeFormRef = ref();
+const passwordFormRef = ref();
 
 /** 第一步：发送验证码 */
 const handleSendCode = async () => {
   try {
-    await accountFormRef.value?.validate()
-    loading.value = true
-    emit('sendCode', formData.account)
+    await accountFormRef.value?.validate();
+    loading.value = true;
+    emit("sendCode", formData.account);
   } catch {
     // 表单验证失败
   }
-}
+};
 
 /** 重发验证码 */
 const handleResend = () => {
-  if (countdown.value > 0) return
-  loading.value = true
-  emit('sendCode', formData.account)
-}
+  if (countdown.value > 0) return;
+  loading.value = true;
+  emit("sendCode", formData.account);
+};
 
 /** 开始倒计时 */
 const startCountdown = () => {
-  countdown.value = props.countdownDuration
+  countdown.value = props.countdownDuration;
   timer = setInterval(() => {
-    countdown.value--
+    countdown.value--;
     if (countdown.value <= 0 && timer) {
-      clearInterval(timer)
-      timer = null
+      clearInterval(timer);
+      timer = null;
     }
-  }, 1000)
-}
+  }, 1000);
+};
 
 /** 第二步：验证验证码 */
 const handleVerifyCode = async () => {
   try {
-    await codeFormRef.value?.validate()
-    loading.value = true
-    emit('verifyCode', formData.account, formData.code)
+    await codeFormRef.value?.validate();
+    loading.value = true;
+    emit("verifyCode", formData.account, formData.code);
   } catch {
     // 表单验证失败
   }
-}
+};
 
 /** 第三步：提交新密码 */
 const handleSubmit = async () => {
   try {
-    await passwordFormRef.value?.validate()
-    loading.value = true
-    emit('submit', {
-      email: props.verifyType === 'email' ? formData.account : undefined,
-      phone: props.verifyType === 'phone' ? formData.account : undefined,
+    await passwordFormRef.value?.validate();
+    loading.value = true;
+    emit("submit", {
+      email: props.verifyType === "email" ? formData.account : undefined,
+      phone: props.verifyType === "phone" ? formData.account : undefined,
       code: formData.code,
-      password: formData.password
-    })
+      password: formData.password,
+    });
   } catch {
     // 表单验证失败
   }
-}
+};
 
 /** 返回上一步 */
 const handleBack = () => {
-  const steps: StepType[] = ['account', 'code', 'password']
-  const idx = steps.indexOf(currentStep.value)
+  const steps: StepType[] = ["account", "code", "password"];
+  const idx = steps.indexOf(currentStep.value);
   if (idx > 0) {
-    const prev = steps[idx - 1]
-    currentStep.value = prev
-    emit('stepChange', prev)
+    const prev = steps[idx - 1];
+    currentStep.value = prev;
+    emit("stepChange", prev);
   }
-}
+};
 
 /** 完成 */
 const handleComplete = () => {
-  emit('complete')
-}
+  emit("complete");
+};
 
 /** 组件卸载时清除定时器 */
 onUnmounted(() => {
   if (timer) {
-    clearInterval(timer)
-    timer = null
+    clearInterval(timer);
+    timer = null;
   }
-})
+});
 
 /** 暴露方法给父组件 */
 defineExpose({
   /** 设置加载状态 */
   setLoading(val: boolean) {
-    loading.value = val
+    loading.value = val;
   },
   /** 获取加载状态 */
   getLoading() {
-    return loading.value
+    return loading.value;
   },
   /** 设置当前步骤 */
   setStep(step: StepType) {
-    currentStep.value = step
-    emit('stepChange', step)
+    currentStep.value = step;
+    emit("stepChange", step);
   },
   /** 获取当前步骤 */
   getStep() {
-    return currentStep.value
+    return currentStep.value;
   },
   /** 跳转到验证码步骤（发送验证码成功后调用） */
   goToCodeStep() {
-    startCountdown()
-    currentStep.value = 'code'
-    loading.value = false
-    emit('stepChange', 'code')
+    startCountdown();
+    currentStep.value = "code";
+    loading.value = false;
+    emit("stepChange", "code");
   },
   /** 跳转到密码步骤（验证码验证成功后调用） */
   goToPasswordStep() {
-    currentStep.value = 'password'
-    loading.value = false
-    emit('stepChange', 'password')
+    currentStep.value = "password";
+    loading.value = false;
+    emit("stepChange", "password");
   },
   /** 跳转到成功步骤（密码重置成功后调用） */
   goToSuccessStep() {
-    currentStep.value = 'success'
-    loading.value = false
-    emit('stepChange', 'success')
+    currentStep.value = "success";
+    loading.value = false;
+    emit("stepChange", "success");
   },
   /** 获取已收集的表单数据 */
   getFormData(): ResetFormData {
     return {
-      email: props.verifyType === 'email' ? formData.account : undefined,
-      phone: props.verifyType === 'phone' ? formData.account : undefined,
+      email: props.verifyType === "email" ? formData.account : undefined,
+      phone: props.verifyType === "phone" ? formData.account : undefined,
       code: formData.code,
-      password: formData.password
-    }
+      password: formData.password,
+    };
   },
   /** 获取账号（邮箱或手机号） */
   getAccount() {
-    return formData.account
+    return formData.account;
   },
   /** 获取验证码 */
   getCode() {
-    return formData.code
+    return formData.code;
   },
   /** 获取密码（仅在密码步骤验证通过后有效） */
   getPassword() {
-    return formData.password
+    return formData.password;
   },
   /** 重置表单 */
   reset() {
-    formData.account = ''
-    formData.code = ''
-    formData.password = ''
-    formData.confirmPassword = ''
-    currentStep.value = 'account'
-    loading.value = false
-    countdown.value = 0
+    formData.account = "";
+    formData.code = "";
+    formData.password = "";
+    formData.confirmPassword = "";
+    currentStep.value = "account";
+    loading.value = false;
+    countdown.value = 0;
     if (timer) {
-      clearInterval(timer)
-      timer = null
+      clearInterval(timer);
+      timer = null;
     }
   },
   /** 开始倒计时 */
-  startCountdown
-})
+  startCountdown,
+});
 </script>
 
 <template>
@@ -388,29 +344,37 @@ defineExpose({
           class="rp__step"
           :class="{
             'rp__step--active': stepIndex >= 0,
-            'rp__step--done': stepIndex > 0
+            'rp__step--done': stepIndex > 0,
           }"
         >
           <span class="rp__step-num">1</span>
-          <span class="rp__step-label">{{ verifyType === 'email' ? '验证邮箱' : '验证手机' }}</span>
+          <span class="rp__step-label">{{
+            verifyType === "email" ? "验证邮箱" : "验证手机"
+          }}</span>
         </div>
-        <div class="rp__step-line" :class="{ 'rp__step-line--active': stepIndex > 0 }"></div>
+        <div
+          class="rp__step-line"
+          :class="{ 'rp__step-line--active': stepIndex > 0 }"
+        ></div>
         <div
           class="rp__step"
           :class="{
             'rp__step--active': stepIndex >= 1,
-            'rp__step--done': stepIndex > 1
+            'rp__step--done': stepIndex > 1,
           }"
         >
           <span class="rp__step-num">2</span>
           <span class="rp__step-label">输入验证码</span>
         </div>
-        <div class="rp__step-line" :class="{ 'rp__step-line--active': stepIndex > 1 }"></div>
+        <div
+          class="rp__step-line"
+          :class="{ 'rp__step-line--active': stepIndex > 1 }"
+        ></div>
         <div
           class="rp__step"
           :class="{
             'rp__step--active': stepIndex >= 2,
-            'rp__step--done': stepIndex > 2
+            'rp__step--done': stepIndex > 2,
           }"
         >
           <span class="rp__step-num">3</span>
@@ -488,7 +452,12 @@ defineExpose({
       <slot name="code-form-suffix"></slot>
       <div class="rp__actions">
         <el-button size="large" @click="handleBack">{{ backText }}</el-button>
-        <el-button type="primary" size="large" :loading="loading" @click="handleVerifyCode">
+        <el-button
+          type="primary"
+          size="large"
+          :loading="loading"
+          @click="handleVerifyCode"
+        >
           {{ nextText }}
         </el-button>
       </div>
@@ -531,7 +500,12 @@ defineExpose({
       <slot name="password-form-suffix"></slot>
       <div class="rp__actions">
         <el-button size="large" @click="handleBack">{{ backText }}</el-button>
-        <el-button type="primary" size="large" :loading="loading" @click="handleSubmit">
+        <el-button
+          type="primary"
+          size="large"
+          :loading="loading"
+          @click="handleSubmit"
+        >
           {{ resetText }}
         </el-button>
       </div>
