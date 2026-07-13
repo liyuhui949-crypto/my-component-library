@@ -3,6 +3,10 @@ import { ref } from "vue";
 import { ElSearchForm } from "@my-lib/components";
 import type { FormItemConfig } from "@my-lib/components";
 
+defineOptions({
+  inheritAttrs: false,
+});
+
 const searchFormRef = ref();
 
 const searchItems: FormItemConfig[] = [
